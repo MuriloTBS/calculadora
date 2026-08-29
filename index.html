@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Preços Lagos Fiber</title>
+  <meta name="theme-color" content="#121824">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    :root {
+      --bg: #121824;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --yellow: #facc15;
+      --blue: #3b82f6;
+      --orange: #f97316;
+      --green: #22c55e;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .dashboard-container {
+      width: 100%;
+      max-width: 900px;
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      padding: 24px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-left: 6px solid #ccc;
+    }
+
+    .card-yellow { border-left-color: var(--yellow); }
+    .card-blue { border-left-color: var(--blue); }
+    .card-orange { border-left-color: var(--orange); }
+
+    .card label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .card label span.badge {
+      font-size: 0.85rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 12px 10px 42px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"]:focus {
+      border-color: #64748b;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin-top: 10px;
+      accent-color: currentColor;
+    }
+
+    /* Cores dinâmicas para sliders */
+    .slider-blue { accent-color: var(--blue); }
+    .slider-orange { accent-color: var(--orange); }
+
+    .results-panel {
+      background: #09131f;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #1e3a5f;
+    }
+
+    .display-formula {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 14px;
+      border-radius: 8px;
+      color: #38bdf8;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .highlight-result {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.05));
+      border: 2px solid var(--green);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .highlight-result span {
+      font-size: 0.85rem;
+      color: #86efac;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .highlight-result h2 {
+      font-size: 2.2rem;
+      color: #fff;
+      margin-top: 4px;
+      font-weight: 800;
+    }
+
+    .breakdown-table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .breakdown-table td {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .breakdown-table td:last-child {
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    <header>
+      <h1>Calculadora de Preços Lagos Fiber</h1>
+    </header>
+
+    <div class="content-grid">
+      <section class="inputs-section">
+        <div class="card card-yellow">
+          <label for="custo">
+            <span>Custo do Produto</span>
+            <span class="badge" style="color: var(--yellow);">Custo Base</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="input-prefix">R$</span>
+            <input type="number" id="custo" value="27.00" step="0.50" min="0">
+          </div>
+        </div>
+
+        <div class="card card-blue">
+          <label for="margem">
+            <span>Margem de Lucro Desejada</span>
+            <span class="badge" style="color: var(--blue);" id="margem-val">60%</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="input-prefix">%</span>
+            <input type="number" id="margem" value="60" min="0" max="99" step="1">
+          </div>
+          <input type="range" id="margem-slider" min="0" max="95" value="60" class="slider-blue">
+        </div>
+
+        <div class="card card-orange">
+          <label for="impostos">
+            <span>Impostos sobre a Venda</span>
+            <span class="badge" style="color: var(--orange);" id="imposto-val">10%</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="input-prefix">%</span>
+            <input type="number" id="impostos" value="10" min="0" max="99" step="0.5">
+          </div>
+          <input type="range" id="impostos-slider" min="0" max="50" value="10" class="slider-orange">
+        </div>
+      </section>
+
+      <section class="results-panel">
+        <div>
+          <div class="display-formula" id="formula-box">
+            </div>
+
+          <div class="highlight-result">
+            <span>Preço de Venda Final</span>
+            <h2 id="preco-venda-display">R$ 90,00</h2>
+          </div>
+
+          <div class="error-msg" id="error-msg">
+            ⚠️ A soma da Margem + Impostos deve ser menor que 100%.
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <tr>
+            <td style="color: var(--yellow);">● Custo Direto:</td>
+            <td id="resumo-custo">R$ 27,00 (30%)</td>
+          </tr>
+          <tr>
+            <td style="color: var(--blue);">● Lucro Líquido:</td>
+            <td id="resumo-lucro">R$ 54,00 (60%)</td>
+          </tr>
+          <tr>
+            <td style="color: var(--orange);">● Impostos:</td>
+            <td id="resumo-imposto">R$ 9,00 (10%)</td>
+          </tr>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const custoInput = document.getElementById('custo');
+    const margemInput = document.getElementById('margem');
+    const margemSlider = document.getElementById('margem-slider');
+    const impostosInput = document.getElementById('impostos');
+    const impostosSlider = document.getElementById('impostos-slider');
+
+    const margemVal = document.getElementById('margem-val');
+    const impostoVal = document.getElementById('imposto-val');
+    const formulaBox = document.getElementById('formula-box');
+    const precoVendaDisplay = document.getElementById('preco-venda-display');
+    const errorMsg = document.getElementById('error-msg');
+
+    const resumoCusto = document.getElementById('resumo-custo');
+    const resumoLucro = document.getElementById('resumo-lucro');
+    const resumoImposto = document.getElementById('resumo-imposto');
+
+    function formatBRL(valor) {
+      return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function calcular() {
+      const C = parseFloat(custoInput.value) || 0;
+      const M_perc = parseFloat(margemInput.value) || 0;
+      const T_perc = parseFloat(impostosInput.value) || 0;
+
+      // Sincronizar sliders
+      margemSlider.value = M_perc;
+      impostosSlider.value = T_perc;
+      margemVal.innerText = `${M_perc}%`;
+      impostoVal.innerText = `${T_perc}%`;
+
+      const M = M_perc / 100;
+      const T = T_perc / 100;
+      const divisor = 1 - (M + T);
+
+      if (divisor <= 0) {
+        errorMsg.style.display = 'block';
+        precoVendaDisplay.innerText = 'R$ --';
+        formulaBox.innerHTML = `Divisor inválido (1 - ${M.toFixed(2)} - ${T.toFixed(2)} = ${divisor.toFixed(2)}).`;
+        return;
+      }
+
+      errorMsg.style.display = 'none';
+
+      // Cálculo Preço de Venda
+      const PV = C / divisor;
+
+      // Valores monetários
+      const lucroReais = PV * M;
+      const impostoReais = PV * T;
+
+      // Atualiza Fórmula Visual
+      formulaBox.innerHTML = `
+        <strong>Cálculo do Preço (Markup Divisor):</strong><br>
+        PV = Custo / (1 - Margem - Imposto)<br>
+        PV = ${formatBRL(C)} / (1 - ${M.toFixed(2)} - ${T.toFixed(2)})<br>
+        PV = ${formatBRL(C)} / ${divisor.toFixed(2)}
+      `;
+
+      // Atualiza Preço e Resumo
+      precoVendaDisplay.innerText = formatBRL(PV);
+      resumoCusto.innerText = `${formatBRL(C)} (${((C / PV) * 100).toFixed(1)}%)`;
+      resumoLucro.innerText = `${formatBRL(lucroReais)} (${M_perc}%)`;
+      resumoImposto.innerText = `${formatBRL(impostoReais)} (${T_perc}%)`;
+    }
+
+    // Sincronizações de eventos
+    custoInput.addEventListener('input', calcular);
+
+    margemInput.addEventListener('input', (e) => {
+      margemSlider.value = e.target.value;
+      calcular();
+    });
+    margemSlider.addEventListener('input', (e) => {
+      margemInput.value = e.target.value;
+      calcular();
+    });
+
+    impostosInput.addEventListener('input', (e) => {
+      impostosSlider.value = e.target.value;
+      calcular();
+    });
+    impostosSlider.addEventListener('input', (e) => {
+      impostosInput.value = e.target.value;
+      calcular();
+    });
+
+    // Inicializar na carga
+    calcular();
+
+    // Registro do Service Worker (uso offline)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
