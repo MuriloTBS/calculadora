@@ -17,6 +17,7 @@
       --blue: #3b82f6;
       --orange: #f97316;
       --green: #22c55e;
+      --purple: #a78bfa;
       --border: #334155;
     }
 
@@ -84,6 +85,7 @@
     }
 
     .card-yellow { border-left-color: var(--yellow); }
+    .card-purple { border-left-color: var(--purple); }
     .card-blue { border-left-color: var(--blue); }
     .card-orange { border-left-color: var(--orange); }
 
@@ -233,6 +235,17 @@
           </div>
         </div>
 
+        <div class="card card-purple">
+          <label for="frete">
+            <span>Frete</span>
+            <span class="badge" style="color: var(--purple);">Envio</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="input-prefix">R$</span>
+            <input type="number" id="frete" value="0.00" step="0.50" min="0">
+          </div>
+        </div>
+
         <div class="card card-blue">
           <label for="margem">
             <span>Margem de Lucro Desejada</span>
@@ -279,6 +292,10 @@
             <td id="resumo-custo">R$ 27,00 (30%)</td>
           </tr>
           <tr>
+            <td style="color: var(--purple);">● Frete:</td>
+            <td id="resumo-frete">R$ 0,00 (0%)</td>
+          </tr>
+          <tr>
             <td style="color: var(--blue);">● Lucro Líquido:</td>
             <td id="resumo-lucro">R$ 54,00 (60%)</td>
           </tr>
@@ -293,6 +310,7 @@
 
   <script>
     const custoInput = document.getElementById('custo');
+    const freteInput = document.getElementById('frete');
     const margemInput = document.getElementById('margem');
     const margemSlider = document.getElementById('margem-slider');
     const impostosInput = document.getElementById('impostos');
@@ -305,6 +323,7 @@
     const errorMsg = document.getElementById('error-msg');
 
     const resumoCusto = document.getElementById('resumo-custo');
+    const resumoFrete = document.getElementById('resumo-frete');
     const resumoLucro = document.getElementById('resumo-lucro');
     const resumoImposto = document.getElementById('resumo-imposto');
 
@@ -314,6 +333,7 @@
 
     function calcular() {
       const C = parseFloat(custoInput.value) || 0;
+      const F = parseFloat(freteInput.value) || 0;
       const M_perc = parseFloat(margemInput.value) || 0;
       const T_perc = parseFloat(impostosInput.value) || 0;
 
@@ -336,8 +356,9 @@
 
       errorMsg.style.display = 'none';
 
-      // Cálculo Preço de Venda
-      const PV = C / divisor;
+      // Cálculo Preço de Venda (Custo + Frete formam a base de custo direto)
+      const custoBase = C + F;
+      const PV = custoBase / divisor;
 
       // Valores monetários
       const lucroReais = PV * M;
@@ -346,20 +367,22 @@
       // Atualiza Fórmula Visual
       formulaBox.innerHTML = `
         <strong>Cálculo do Preço (Markup Divisor):</strong><br>
-        PV = Custo / (1 - Margem - Imposto)<br>
-        PV = ${formatBRL(C)} / (1 - ${M.toFixed(2)} - ${T.toFixed(2)})<br>
-        PV = ${formatBRL(C)} / ${divisor.toFixed(2)}
+        PV = (Custo + Frete) / (1 - Margem - Imposto)<br>
+        PV = (${formatBRL(C)} + ${formatBRL(F)}) / (1 - ${M.toFixed(2)} - ${T.toFixed(2)})<br>
+        PV = ${formatBRL(custoBase)} / ${divisor.toFixed(2)}
       `;
 
       // Atualiza Preço e Resumo
       precoVendaDisplay.innerText = formatBRL(PV);
       resumoCusto.innerText = `${formatBRL(C)} (${((C / PV) * 100).toFixed(1)}%)`;
+      resumoFrete.innerText = `${formatBRL(F)} (${((F / PV) * 100).toFixed(1)}%)`;
       resumoLucro.innerText = `${formatBRL(lucroReais)} (${M_perc}%)`;
       resumoImposto.innerText = `${formatBRL(impostoReais)} (${T_perc}%)`;
     }
 
     // Sincronizações de eventos
     custoInput.addEventListener('input', calcular);
+    freteInput.addEventListener('input', calcular);
 
     margemInput.addEventListener('input', (e) => {
       margemSlider.value = e.target.value;

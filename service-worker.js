@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lagos-fiber-calc-v1';
+const CACHE_NAME = 'lagos-fiber-calc-v2';
 const ASSETS = [
   './',
   './index.html',
